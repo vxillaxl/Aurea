@@ -1,0 +1,144 @@
+<section class="pagina perfil-pagina">
+  <section class="panel perfil-hero">
+    <div class="hero-brillo suave" aria-hidden="true"></div>
+    <div class="perfil-hero-izq">
+      <span class="perfil-iniciales">{{ iniciales() }}</span>
+      <div>
+        <p class="marca-hero oscuro">Aurea</p>
+        <p class="eyebrow">Tu perfil</p>
+        <h1>Hola, {{ perfil().nombre }}</h1>
+        <p class="perfil-nombre">{{ perfil().nombre }} {{ perfil().apellido }}</p>
+        <p class="meta" *ngIf="sesion() as cuenta">{{ cuenta.correo }}</p>
+        <p class="perfil-ciudad">Pasto, Nariño · cuenta en este navegador</p>
+      </div>
+    </div>
+    <article class="perfil-proxima" *ngIf="proximaCita() as cita; else sinProxima">
+      <p class="eyebrow">Próxima cita</p>
+      <strong>{{ horaLinda(cita.hora) }}</strong>
+      <p>{{ cita.especialidad }}</p>
+      <span>{{ mostrarFecha(cita.fecha) }} · {{ cita.ips }}</span>
+      <a class="enlace" routerLink="/citas">Ver citas</a>
+    </article>
+    <ng-template #sinProxima>
+      <article class="perfil-proxima vacia">
+        <p class="eyebrow">Próxima cita</p>
+        <strong>Sin citas</strong>
+        <p>Cuando agendas una, aparece aquí.</p>
+        <a class="enlace" routerLink="/citas">Agendar</a>
+      </article>
+    </ng-template>
+  </section>
+
+  <div class="perfil-numeros">
+    <article>
+      <span>Citas</span>
+      <strong>{{ citas().length }}</strong>
+    </article>
+    <article>
+      <span>Próximas</span>
+      <strong>{{ proximas() }}</strong>
+    </article>
+    <article>
+      <span>Por tomar</span>
+      <strong>{{ pendientes() }}</strong>
+    </article>
+    <article>
+      <span>Ya tomadas</span>
+      <strong>{{ tomadas() }}</strong>
+    </article>
+  </div>
+
+  <div class="perfil-grid">
+    <section class="panel perfil-actividad">
+      <div class="cabecera-lista">
+        <h3>Próximas citas</h3>
+        <a class="enlace" routerLink="/citas">Ver todas</a>
+      </div>
+      <div class="vacio-caja" *ngIf="citasCercanas().length === 0">
+        <p>No hay citas próximas en esta cuenta.</p>
+        <a class="btn btn-suave" routerLink="/citas">Agendar una</a>
+      </div>
+      <article class="fila-cita" *ngFor="let cita of citasCercanas()">
+        <span class="fecha-bloque">
+          <strong>{{ mostrarFecha(cita.fecha).split(' ')[0] }}</strong>
+          <span>{{ mostrarFecha(cita.fecha).split(' ')[1] }}</span>
+        </span>
+        <div class="cita-medio">
+          <strong>{{ cita.hora }}</strong>
+          <div>
+            <h3>{{ cita.especialidad }}</h3>
+            <p>{{ cita.ips }}</p>
+          </div>
+        </div>
+        <span class="badge" [ngClass]="setClaseEstado(cita.estado)">
+          {{ cita.estado === 'confirmada' ? 'Confirmada' : 'Pendiente' }}
+        </span>
+      </article>
+
+      <div class="perfil-separador"></div>
+
+      <div class="cabecera-lista">
+        <h3>Dosis por tomar</h3>
+        <a class="enlace" routerLink="/medicamentos">Ver todos</a>
+      </div>
+      <div class="vacio-caja" *ngIf="dosisPendientes().length === 0">
+        <p *ngIf="tomas().length === 0">Todavía no hay medicamentos en esta cuenta.</p>
+        <p *ngIf="tomas().length > 0">No te faltan dosis por marcar.</p>
+        <a class="btn btn-suave" routerLink="/medicamentos" *ngIf="tomas().length === 0">Agregar medicamento</a>
+      </div>
+      <article class="fila-med" *ngFor="let toma of dosisPendientes()">
+        <span class="hora-bloque">{{ toma.hora }}</span>
+        <div class="cita-medio">
+          <div>
+            <h3>{{ toma.medicamento }}</h3>
+            <p>{{ toma.dosis }}</p>
+          </div>
+        </div>
+        <span class="badge estado-pendiente">Por tomar</span>
+      </article>
+    </section>
+
+    <aside class="panel perfil-lado">
+      <h3>Tu cuenta</h3>
+      <ul class="perfil-datos">
+        <li>
+          <span>Nombre</span>
+          <strong>{{ perfil().nombre }} {{ perfil().apellido }}</strong>
+        </li>
+        <li *ngIf="sesion() as cuenta">
+          <span>Correo</span>
+          <strong>{{ cuenta.correo }}</strong>
+        </li>
+        <li>
+          <span>Ciudad</span>
+          <strong>Pasto, Nariño</strong>
+        </li>
+        <li>
+          <span>Medicamentos</span>
+          <strong>{{ tomas().length }}</strong>
+        </li>
+      </ul>
+      <p class="ayuda">Cada cuenta guarda sus propias citas y medicamentos en este navegador.</p>
+
+      <div class="perfil-separador"></div>
+
+      <h3>Editar nombre</h3>
+      <p class="ayuda">Así sale el saludo de arriba.</p>
+      <p class="aviso" *ngIf="aviso()">{{ aviso() }}</p>
+      <form class="form-pila" [formGroup]="perfilForm" (ngSubmit)="guardar()">
+        <div class="form-group">
+          <label for="nombre">Nombre</label>
+          <input id="nombre" type="text" formControlName="nombre" autocomplete="given-name" />
+          <p class="error" *ngIf="intento() && perfilForm.controls.nombre.invalid">Escribe el nombre. Mínimo 2 letras.</p>
+        </div>
+        <div class="form-group">
+          <label for="apellido">Apellido</label>
+          <input id="apellido" type="text" formControlName="apellido" autocomplete="family-name" />
+          <p class="error" *ngIf="intento() && perfilForm.controls.apellido.invalid">Escribe el apellido. Mínimo 2 letras.</p>
+        </div>
+        <button class="btn btn-primary" type="submit">Guardar cambios</button>
+      </form>
+      <button class="btn btn-suave salir" type="button" (click)="salir()">Cerrar sesión</button>
+    </aside>
+  </div>
+</section>

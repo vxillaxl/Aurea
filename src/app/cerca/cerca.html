@@ -1,0 +1,67 @@
+<section class="pagina">
+  <section class="banner-foto">
+    <div class="hero-brillo" aria-hidden="true"></div>
+    <div class="banner-texto">
+      <p class="marca-hero">Aurea</p>
+      <p class="eyebrow claro">Tu salud, más cerca</p>
+      <h1>Centros médicos</h1>
+      <p>Encuentra hospitales, IPS y farmacias cerca de ti. Tu bienestar, en las mejores manos.</p>
+      <button type="button" class="btn btn-cielo" (click)="irAlMapa()">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 14.5 9 2.5 2.5 0 0 1 12 11.5z"/></svg>
+        Ver en el mapa
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+      </button>
+    </div>
+    <img src="banner-centros.jpg" alt="Oso médico señalando un centro de salud" />
+    <p class="lema-cerca">Siempre<br />cerca de ti</p>
+  </section>
+
+  <div class="cerca-layout" id="directorio">
+    <div>
+      <div class="filters" aria-label="Tipo de lugar">
+        <button type="button" class="filter" [ngClass]="{ active: filtro() === 'todos' }" (click)="cambiarFiltro('todos')">Todos</button>
+        <button type="button" class="filter" [ngClass]="{ active: filtro() === 'hospital' }" (click)="cambiarFiltro('hospital')">Hospitales</button>
+        <button type="button" class="filter" [ngClass]="{ active: filtro() === 'ips' }" (click)="cambiarFiltro('ips')">IPS</button>
+        <button type="button" class="filter" [ngClass]="{ active: filtro() === 'farmacia' }" (click)="cambiarFiltro('farmacia')">Farmacias</button>
+      </div>
+
+      <p class="vacio" *ngIf="centrosVisibles().length === 0">
+        No hay lugares de este tipo.
+      </p>
+
+      <div class="tarjetas-centro">
+        <button type="button" class="lugar" *ngFor="let centro of centrosVisibles()" [class.activo]="elegido()?.id === centro.id" (click)="elegir(centro)">
+          <img [src]="fotoDe(centro)" [alt]="centro.nombre" />
+          <div>
+            <span class="badge" [ngClass]="setClaseTipo(centro.tipo)">{{ etiquetaTipo(centro) }}</span>
+            <h3>{{ centro.nombre }}</h3>
+            <p>{{ centro.barrio }}, Pasto</p>
+            <p class="meta">{{ centro.direccion }}</p>
+            <span class="meta">{{ centro.horario }}</span>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <aside class="lado-cerca">
+      <section class="panel mapa-caja" id="mapa">
+        <h3>Google Maps</h3>
+        <p class="ayuda" *ngIf="elegido() as centro; else ciudad">{{ centro.nombre }} · {{ centro.direccion }}</p>
+        <ng-template #ciudad><p class="ayuda">Pasto, Nariño. Toca un centro y el mapa se mueve a su dirección.</p></ng-template>
+        <iframe class="mapa-google" [src]="mapa()" title="Mapa de Pasto en Google Maps" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        <a class="enlace" [href]="enlaceExterno()" target="_blank" rel="noopener">Abrir en Google Maps</a>
+      </section>
+      <section class="panel">
+        <h3>Tipos de centros</h3>
+        <ul class="cuentas">
+          <li><span>Hospitales</span><strong>{{ cuantos('hospital') }}</strong></li>
+          <li><span>IPS</span><strong>{{ cuantos('ips') }}</strong></li>
+          <li><span>Farmacias</span><strong>{{ cuantos('farmacia') }}</strong></li>
+        </ul>
+      </section>
+      <aside class="nota">
+        <h3>Tu salud es nuestra prioridad</h3>
+      </aside>
+    </aside>
+  </div>
+</section>

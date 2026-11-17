@@ -1,0 +1,101 @@
+<section class="pagina">
+  <section class="banner-foto">
+    <div class="hero-brillo" aria-hidden="true"></div>
+    <div class="banner-texto">
+      <p class="marca-hero">Aurea</p>
+      <p class="eyebrow claro">Organiza tu salud</p>
+      <h1>Tus citas</h1>
+      <p>Mantén tus consultas al día y nunca olvides lo importante.</p>
+      <button type="button" class="btn btn-cielo" (click)="irAlFormulario()">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/></svg>
+        Agendar cita
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+      </button>
+    </div>
+    <img src="banner-citas.jpg" alt="Oso médico con el calendario de citas" />
+  </section>
+
+  <p class="aviso" *ngIf="aviso()">{{ aviso() }}</p>
+
+  <div class="layout-dos">
+    <section class="panel">
+      <div class="cabecera-lista">
+        <h3 class="con-icono">Tus próximas citas</h3>
+        <div class="filters" aria-label="Filtrar citas">
+          <!-- (click) cambia el filtro. ngClass deja activo el que coincide -->
+          <button type="button" class="filter" [ngClass]="{ active: filtro() === 'todas' }" (click)="cambiarFiltro('todas')">Todas</button>
+          <button type="button" class="filter" [ngClass]="{ active: filtro() === 'hoy' }" (click)="cambiarFiltro('hoy')">Hoy</button>
+          <button type="button" class="filter" [ngClass]="{ active: filtro() === 'proximas' }" (click)="cambiarFiltro('proximas')">Próximas</button>
+        </div>
+      </div>
+
+      <!-- *ngIf: aviso distinto si no hay citas o si el filtro quedó vacío -->
+      <div class="vacio-caja" *ngIf="citas().length === 0">
+        <p>Esta cuenta todavía no tiene citas. Agenda la primera al lado.</p>
+        <button class="btn btn-suave" type="button" (click)="irAlFormulario()">Ir al formulario</button>
+      </div>
+      <div class="vacio-caja" *ngIf="citas().length > 0 && citasVisibles().length === 0">
+        <p>No hay citas en este filtro. Prueba con Todas o agenda una nueva.</p>
+      </div>
+
+      <div class="lista" (mouseenter)="mirarLista(true)" (mouseleave)="mirarLista(false)">
+        <!-- *ngFor: una fila por cada cita -->
+        <article class="fila-cita" *ngFor="let cita of citasVisibles()">
+          <span class="fecha-bloque">
+            <strong>{{ diaNumero(cita.fecha) }}</strong>
+            <span>{{ mesCorto(cita.fecha) }}</span>
+          </span>
+          <div class="cita-medio">
+            <strong>{{ horaLinda(cita.hora) }}</strong>
+            <div>
+              <h3>{{ cita.especialidad }}</h3>
+              <p>{{ cita.ips }} · Pasto, Nariño</p>
+            </div>
+          </div>
+          <button type="button" class="badge" [ngClass]="setClaseEstado(cita.estado)" (click)="cambiarEstado(cita)">
+            {{ cita.estado === 'confirmada' ? 'Confirmada' : 'Pendiente' }}
+          </button>
+          <button class="icon-btn" type="button" (click)="editarCita(cita)">Editar</button>
+          <button class="icon-btn" type="button" (click)="eliminarCita(cita)">Quitar</button>
+        </article>
+      </div>
+    </section>
+
+    <aside class="panel agenda" id="nueva-cita">
+      <span class="bloque-icono" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M7 3v2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2V3h-2v2H9V3zm12 8H5v8h14z"/></svg>
+      </span>
+      <h3>{{ editando() ? 'Corrige esta cita' : '¿Necesitas una nueva cita?' }}</h3>
+      <p class="ayuda">{{ editando() ? 'Cambia los datos y guarda. El estado se cambia en la lista.' : 'Encuentra el especialista que necesitas y agenda tu consulta en minutos.' }}</p>
+
+      <!-- formGroup lo une con citaForm. al enviar llama guardarCita -->
+      <form class="form-pila" [formGroup]="citaForm" (ngSubmit)="guardarCita()">
+        <div class="form-group">
+          <label for="especialidad">Qué te van a atender</label>
+          <input id="especialidad" type="text" formControlName="especialidad" placeholder="Ejemplo: medicina general" autocomplete="off" />
+          <!-- el error sale si ya intenté guardar y el campo está mal -->
+          <p class="error" *ngIf="intento() && citaForm.controls.especialidad.invalid">Escribe la especialidad. Mínimo 3 letras.</p>
+        </div>
+        <div class="form-group">
+          <label for="ips">Dónde es la cita</label>
+          <input id="ips" type="text" formControlName="ips" placeholder="Ejemplo: Hospital San Pedro" autocomplete="off" />
+          <p class="error" *ngIf="intento() && citaForm.controls.ips.invalid">Escribe el hospital o la IPS.</p>
+        </div>
+        <div class="form-group">
+          <label for="fecha">Día</label>
+          <input id="fecha" type="date" formControlName="fecha" />
+          <p class="error" *ngIf="intento() && citaForm.controls.fecha.invalid">Elige el día.</p>
+        </div>
+        <div class="form-group">
+          <label for="hora">Hora</label>
+          <input id="hora" type="time" formControlName="hora" />
+          <p class="error" *ngIf="intento() && citaForm.controls.hora.invalid">Elige la hora.</p>
+        </div>
+        <div class="perfil-acciones">
+          <button class="btn btn-primary" type="submit">{{ editando() ? 'Guardar cambios' : 'Agendar cita' }}</button>
+          <button class="btn btn-suave" type="button" *ngIf="editando()" (click)="cancelarEdicion()">Cancelar</button>
+        </div>
+      </form>
+    </aside>
+  </div>
+</section>

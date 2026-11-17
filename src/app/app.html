@@ -1,0 +1,101 @@
+<div class="app-shell" *ngIf="sesion(); else entrada">
+  <aside class="lado">
+    <a class="marca" routerLink="/">
+      <span class="monograma">A</span>
+      <strong>Aurea</strong>
+    </a>
+
+    <!-- routerLink cambia de ruta. routerLinkActive marca la que está abierta -->
+    <nav class="nav-app" aria-label="Secciones">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1z"/></svg>
+        Inicio
+      </a>
+      <a routerLink="/citas" routerLinkActive="active">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2V3h-2v2H9V3zm12 8H5v8h14z"/></svg>
+        Citas
+      </a>
+      <a routerLink="/medicamentos" routerLinkActive="active">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h8a5 5 0 0 1 0 10H8a5 5 0 0 1 0-10zm0 2a3 3 0 0 0 0 6h8a3 3 0 0 0 0-6zm2 14h4v2h-4z"/></svg>
+        Medicamentos
+      </a>
+      <a routerLink="/historial" routerLinkActive="active">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h8l4 4v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm7 1.5V8h3.5zM8 12h8v1.6H8zm0 3.2h8V17H8z"/></svg>
+        Historial
+      </a>
+      <a routerLink="/centros" routerLinkActive="active">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z"/></svg>
+        Centros
+      </a>
+      <a routerLink="/perfil" routerLinkActive="active">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0 2c-3.3 0-8 1.7-8 5v1h16v-1c0-3.3-4.7-5-8-5z"/></svg>
+        Perfil
+      </a>
+    </nav>
+
+    <div class="lado-nota">
+      <span class="corazon-mini" aria-hidden="true"></span>
+      <p>Tu salud<br />nos importa</p>
+      </div>
+  </aside>
+
+  <div class="contenido">
+    <div class="tope">
+      <div class="campana-caja">
+        <button type="button" class="campana" (click)="avisosAbiertos.set(!avisosAbiertos())" aria-label="Dosis pendientes">
+          <svg viewBox="0 0 24 24"><path d="M12 3a5 5 0 0 0-5 5v2.2c0 .8-.3 1.6-.8 2.2L4.6 14.4A1 1 0 0 0 5.4 16h13.2a1 1 0 0 0 .8-1.6l-1.6-2a3.4 3.4 0 0 1-.8-2.2V8a5 5 0 0 0-5-5zm0 18a2.4 2.4 0 0 0 2.3-2h-4.6A2.4 2.4 0 0 0 12 21z"/></svg>
+          <span class="campana-cuenta" *ngIf="porTomar().length > 0">{{ porTomar().length }}</span>
+        </button>
+        <div class="campana-panel" *ngIf="avisosAbiertos()">
+          <p class="campana-titulo">Dosis pendientes</p>
+          <p class="vacio" *ngIf="porTomar().length === 0">No tienes dosis pendientes.</p>
+          <a *ngFor="let toma of porTomar()" routerLink="/medicamentos" (click)="avisosAbiertos.set(false)">
+            <strong>{{ toma.hora }}</strong>
+            <span class="campana-nombre">{{ toma.medicamento }}</span>
+            <span>{{ toma.dosis }}</span>
+          </a>
+        </div>
+      </div>
+      <a class="saludo-link" routerLink="/perfil" [title]="perfil().nombre + ' ' + perfil().apellido">
+        <span class="user-badge">{{ iniciales() }}</span>
+        <span class="saludo">Hola, {{ perfil().nombre }}</span>
+        <svg class="saludo-flecha" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>
+      </a>
+    </div>
+
+    <main>
+      <!-- aqui entra el componente de la ruta -->
+      <router-outlet />
+    </main>
+
+    <p class="app-footer">Aurea guarda las citas y los medicamentos de tu cuenta solo en este navegador.</p>
+  </div>
+
+  <div class="avisos-pantalla" *ngIf="avisosEnPantalla().length > 0">
+    <article class="aviso-vivo" *ngFor="let aviso of avisosEnPantalla()" [ngClass]="aviso.tipo">
+      <span class="aviso-brillo" aria-hidden="true"></span>
+      <button class="aviso-cerrar" type="button" (click)="ocultarAviso(aviso.clave)" aria-label="Cerrar aviso">×</button>
+      <div class="aviso-cuerpo">
+        <div class="aviso-foto">
+          <img class="aviso-oso" src="oso-aviso.png" alt="" />
+          <span class="aviso-halo" aria-hidden="true"></span>
+        </div>
+        <div class="aviso-texto">
+          <p class="aviso-kicker">{{ aviso.etiqueta }}</p>
+          <h3>{{ aviso.titulo }}</h3>
+          <p class="aviso-hora">{{ aviso.hora }}</p>
+          <p class="aviso-detalle">{{ aviso.detalle }}</p>
+          <div class="aviso-acciones">
+            <button *ngIf="aviso.toma" class="btn btn-aviso" type="button" (click)="marcarDesdeAviso(aviso.toma)">Ya la tomé</button>
+            <a *ngIf="aviso.tipo === 'cita'" class="btn btn-aviso" routerLink="/citas" (click)="ocultarAviso(aviso.clave)">Ver cita</a>
+            <button class="btn btn-aviso-suave" type="button" (click)="ocultarAviso(aviso.clave)">Ahora no</button>
+          </div>
+        </div>
+      </div>
+    </article>
+  </div>
+</div>
+
+<ng-template #entrada>
+  <router-outlet />
+</ng-template>

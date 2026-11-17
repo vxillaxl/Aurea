@@ -1,0 +1,74 @@
+<section class="pagina">
+  <section class="banner-foto banner-historial">
+    <div class="hero-brillo" aria-hidden="true"></div>
+    <div class="banner-texto">
+      <p class="marca-hero">Aurea</p>
+      <p class="eyebrow claro">Lo que ya quedó guardado</p>
+      <h1>Tu historial</h1>
+      <p>Lo guardado en tu cuenta. Si marcas una casilla, la dosis aparece aquí.</p>
+      <a class="btn btn-cielo" routerLink="/citas">
+        Ir a citas
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+      </a>
+    </div>
+    <img src="banner-historial.jpg?v=5" alt="Oso médico revisando el historial" />
+  </section>
+
+  <section class="panel">
+    <div class="cabecera-lista">
+      <h3 class="con-icono">Registro</h3>
+      <div class="filters" aria-label="Filtrar historial">
+        <!-- (click) cambia el signal. ngClass marca el botón activo -->
+        <button type="button" class="filter" [ngClass]="{ active: filtro() === 'todo' }" (click)="cambiarFiltro('todo')">Todo</button>
+        <button type="button" class="filter" [ngClass]="{ active: filtro() === 'citas' }" (click)="cambiarFiltro('citas')">
+          Citas <span class="cuenta">{{ citas().length }}</span>
+        </button>
+        <button type="button" class="filter" [ngClass]="{ active: filtro() === 'tomas' }" (click)="cambiarFiltro('tomas')">
+          Dosis <span class="cuenta">{{ tomadas().length }}</span>
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="filtro() !== 'tomas'">
+      <div class="vacio-caja" *ngIf="citas().length === 0">
+        <p>Todavía no hay citas en esta cuenta.</p>
+        <a class="btn btn-suave" routerLink="/citas">Agendar una cita</a>
+      </div>
+      <!-- *ngFor: una fila por cada cita guardada -->
+      <article class="fila-cita" *ngFor="let cita of citasOrdenadas()">
+        <span class="fecha-bloque">
+          <strong>{{ diaNumero(cita.fecha) }}</strong>
+          <span>{{ mesCorto(cita.fecha) }}</span>
+        </span>
+        <div class="cita-medio">
+          <strong>{{ cita.hora }}</strong>
+          <div>
+            <h3>{{ cita.especialidad }}</h3>
+            <p>{{ cita.ips }} · Pasto, Nariño</p>
+          </div>
+        </div>
+        <span class="badge" [ngClass]="setClaseEstado(cita.estado)">
+          {{ cita.estado === 'confirmada' ? 'Confirmada' : 'Pendiente' }}
+        </span>
+      </article>
+    </div>
+
+    <div class="bloque-historial" *ngIf="filtro() !== 'citas'">
+      <h3>Dosis marcadas</h3>
+      <div class="vacio-caja" *ngIf="tomadas().length === 0">
+        <p>Cuando marques una casilla en Medicamentos, la dosis aparece aquí.</p>
+        <a class="btn btn-suave" routerLink="/medicamentos">Ir a medicamentos</a>
+      </div>
+      <article class="fila-med" *ngFor="let toma of tomadas()">
+        <span class="hora-bloque">{{ toma.hora }}</span>
+        <div class="cita-medio">
+          <div>
+            <h3>{{ toma.medicamento }}</h3>
+            <p>{{ toma.dosis }}</p>
+          </div>
+        </div>
+        <span class="badge estado-ok">Ya tomada</span>
+      </article>
+    </div>
+  </section>
+</section>

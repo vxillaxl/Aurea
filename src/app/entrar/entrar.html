@@ -1,0 +1,68 @@
+<section class="entrada">
+  <div class="entrada-lado">
+    <img src="oso-sentado.jpg" alt="Oso médico de Aurea" />
+    <div class="entrada-velo">
+      <p class="eyebrow claro">Pasto, Nariño</p>
+      <h1>Tu salud, con calma.</h1>
+      <p>Citas, medicamentos y centros, en un solo lugar.</p>
+    </div>
+  </div>
+
+  <div class="entrada-panel">
+    <p class="marca entrada-marca">
+      <span class="monograma">A</span>
+      <strong class="marca-hero oscuro">Aurea</strong>
+    </p>
+    <p class="entrada-tagline">Cuidado médico, con calma.</p>
+
+    <h2>{{ modo() === 'entrar' ? 'Entra a tu cuenta' : 'Crea tu cuenta' }}</h2>
+    <p class="ayuda">Cada cuenta guarda sus propias citas y medicamentos en este navegador.</p>
+
+    <div class="entrada-modos">
+      <button type="button" [ngClass]="{ active: modo() === 'entrar' }" (click)="cambiarModo('entrar')">Entrar</button>
+      <button type="button" [ngClass]="{ active: modo() === 'crear' }" (click)="cambiarModo('crear')">Crear cuenta</button>
+    </div>
+
+    <p class="aviso" *ngIf="aviso()">{{ aviso() }}</p>
+
+    <form class="form-pila" *ngIf="modo() === 'entrar'" [formGroup]="entrarForm" (ngSubmit)="entrar()">
+      <div class="form-group">
+        <label for="correo">Correo</label>
+        <input id="correo" type="email" formControlName="correo" autocomplete="username" placeholder="bryan@aurea.com" />
+        <p class="error" *ngIf="intento() && entrarForm.controls.correo.invalid">Escribe un correo válido.</p>
+      </div>
+      <div class="form-group">
+        <label for="clave">Contraseña</label>
+        <input id="clave" type="password" formControlName="clave" autocomplete="current-password" placeholder="Mínimo 4 caracteres" />
+        <p class="error" *ngIf="intento() && entrarForm.controls.clave.invalid">La contraseña necesita al menos 4 caracteres.</p>
+      </div>
+      <button class="btn btn-primary" type="submit">Entrar</button>
+    </form>
+
+    <form class="form-pila" *ngIf="modo() === 'crear'" [formGroup]="crearForm" (ngSubmit)="crear()">
+      <div class="form-group">
+        <label for="nombreCuenta">Nombre</label>
+        <input id="nombreCuenta" type="text" formControlName="nombre" autocomplete="given-name" />
+        <p class="error" *ngIf="intento() && crearForm.controls.nombre.invalid">Escribe el nombre. Mínimo 2 letras.</p>
+      </div>
+      <div class="form-group">
+        <label for="apellidoCuenta">Apellido</label>
+        <input id="apellidoCuenta" type="text" formControlName="apellido" autocomplete="family-name" />
+        <p class="error" *ngIf="intento() && crearForm.controls.apellido.invalid">Escribe el apellido. Mínimo 2 letras.</p>
+      </div>
+      <div class="form-group">
+        <label for="correoNuevo">Correo</label>
+        <input id="correoNuevo" type="email" formControlName="correo" autocomplete="username" />
+        <p class="error" *ngIf="intento() && crearForm.controls.correo.invalid">Escribe un correo válido.</p>
+      </div>
+      <div class="form-group">
+        <label for="claveNueva">Contraseña</label>
+        <input id="claveNueva" type="password" formControlName="clave" autocomplete="new-password" />
+        <p class="error" *ngIf="intento() && crearForm.controls.clave.invalid">La contraseña necesita al menos 4 caracteres.</p>
+      </div>
+      <button class="btn btn-primary" type="submit">Crear cuenta</button>
+    </form>
+
+    <p class="entrada-ejemplo">Para probar con datos de ejemplo: bryan@aurea.com · contraseña aurea</p>
+  </div>
+</section>

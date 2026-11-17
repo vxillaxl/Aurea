@@ -1,0 +1,109 @@
+<section class="pagina">
+  <section class="banner-foto">
+    <div class="hero-brillo" aria-hidden="true"></div>
+    <div class="banner-texto">
+      <p class="marca-hero">Aurea</p>
+      <p class="eyebrow claro">Tu tratamiento, en orden</p>
+      <h1>Tus medicamentos</h1>
+      <p>Toma cada dosis a tiempo y cuida lo más importante: tu salud.</p>
+      <a class="btn btn-cielo" routerLink="/historial">
+        Ver historial
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+      </a>
+    </div>
+    <img [class.asiente]="gesto()" src="banner-meds.jpg" alt="Oso médico con el frasco y la lista de medicamentos" />
+  </section>
+
+  <p class="aviso" *ngIf="aviso()">{{ aviso() }}</p>
+
+  <section class="panel">
+    <div class="cabecera-lista">
+      <h3 class="con-icono">Medicamentos de hoy</h3>
+      <div class="filters" aria-label="Filtrar medicamentos">
+        <button type="button" class="filter" [ngClass]="{ active: filtro() === 'todas' }" (click)="cambiarFiltro('todas')">
+          Todos <span class="cuenta">{{ cuantas('todas') }}</span>
+        </button>
+        <button type="button" class="filter" [ngClass]="{ active: filtro() === 'pendientes' }" (click)="cambiarFiltro('pendientes')">
+          Por tomar <span class="cuenta">{{ cuantas('pendientes') }}</span>
+        </button>
+        <button type="button" class="filter" [ngClass]="{ active: filtro() === 'tomadas' }" (click)="cambiarFiltro('tomadas')">
+          Tomados <span class="cuenta">{{ cuantas('tomadas') }}</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="vacio-caja" *ngIf="tomas().length === 0">
+      <p>Esta cuenta todavía no tiene medicamentos. Agrégalos abajo.</p>
+      <button class="btn btn-suave" type="button" (click)="irAlFormulario()">Ir al formulario</button>
+    </div>
+    <div class="vacio-caja" *ngIf="tomas().length > 0 && tomasVisibles().length === 0">
+      <p>No hay medicamentos en este filtro. Prueba con Todos.</p>
+    </div>
+
+    <div class="lista">
+      <article class="fila-med" *ngFor="let toma of tomasVisibles()" [class.hecha]="toma.tomada">
+        <label>
+          <input
+            type="checkbox"
+            [id]="'toma-' + toma.id"
+            [checked]="toma.tomada"
+            (change)="onChangeTomada($event, toma)"
+          />
+          <span class="icono-momento" [ngClass]="setClaseMomento(toma.momento)"></span>
+          <span class="hora-bloque">{{ toma.hora }}</span>
+          <span class="dosis-texto">
+            <span class="nombre">{{ toma.medicamento }}</span>
+            <span class="meta">{{ toma.dosis }} · {{ etiquetaMomento(toma.momento) }}</span>
+          </span>
+          <span class="badge" [ngClass]="toma.tomada ? 'estado-ok' : 'estado-pendiente'">
+            {{ toma.tomada ? 'Tomado' : 'Por tomar' }}
+          </span>
+        </label>
+        <button class="icon-btn" type="button" (click)="editarToma(toma)">Editar</button>
+        <button class="icon-btn" type="button" (click)="eliminarToma(toma)">Quitar</button>
+      </article>
+    </div>
+  </section>
+
+  <div class="pie-meds">
+    <section class="panel" id="nuevo-medicamento">
+      <h3 class="con-icono">{{ editando() ? 'Corrige este medicamento' : 'Agregar un medicamento' }}</h3>
+      <p class="ayuda">{{ editando() ? 'Cambia los datos y guarda. La casilla sigue marcando si ya lo tomaste.' : 'Queda en la lista de este navegador. La campana de arriba muestra los que faltan.' }}</p>
+      <form class="form-grid" [formGroup]="tomaForm" (ngSubmit)="guardarToma()">
+        <div class="form-group">
+          <label for="medicamento">Nombre del medicamento</label>
+          <input id="medicamento" type="text" formControlName="medicamento" placeholder="Ejemplo: Losartán" autocomplete="off" />
+          <p class="error" *ngIf="intento() && tomaForm.controls.medicamento.invalid">Escribe el nombre. Mínimo 3 letras.</p>
+        </div>
+        <div class="form-group">
+          <label for="dosis">Cuánto tomas</label>
+          <input id="dosis" type="text" formControlName="dosis" placeholder="Ejemplo: 50 mg" autocomplete="off" />
+          <p class="error" *ngIf="intento() && tomaForm.controls.dosis.invalid">Escribe la dosis.</p>
+        </div>
+        <div class="form-group">
+          <label for="horaToma">A qué hora</label>
+          <input id="horaToma" type="time" formControlName="hora" />
+          <p class="error" *ngIf="intento() && tomaForm.controls.hora.invalid">Elige la hora.</p>
+        </div>
+        <div class="form-group">
+          <label for="momento">En qué momento del día</label>
+          <select id="momento" formControlName="momento">
+            <option value="manana">En la mañana</option>
+            <option value="tarde">En la tarde</option>
+            <option value="noche">En la noche</option>
+          </select>
+        </div>
+        <div class="form-acciones">
+          <span class="meta">Queda por tomar hasta que marques la casilla.</span>
+          <button class="btn btn-primary" type="submit">{{ editando() ? 'Guardar cambios' : 'Guardar medicamento' }}</button>
+          <button class="btn btn-suave" type="button" *ngIf="editando()" (click)="cancelarEdicion()">Cancelar</button>
+        </div>
+      </form>
+    </section>
+
+    <aside class="nota nota-bien">
+      <h3>Tu bienestar es la prioridad</h3>
+      <p>Pequeños hábitos, grandes resultados.</p>
+    </aside>
+  </div>
+</section>
